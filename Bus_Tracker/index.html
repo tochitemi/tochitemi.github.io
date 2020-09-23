@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>MBTA Routes</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+
+<style>
+    body {margin: 0; padding: 0;}
+    #map {position: absolute; top: 0; bottom: 0; width: 100%;} 
+    .map-overlay{
+        position: absolute;
+        left: 0;
+        padding: 10px;
+    } 
+
+    .mapButton {
+	box-shadow: 0px 10px 14px -7px #276873;
+	background-color:#ed3330;
+	border-radius:8px;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:'Quicksand', sans-serif;
+	font-size:20px;
+	font-weight:bold;
+	padding:13px 32px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #3d768a;
+    }
+
+    .mapButton:hover {
+	background-color:#ca8164;
+    }
+
+    .mapButton:active {
+	position:relative;
+	top:1px;
+    }
+
+</style>
+
+</head>
+
+<body>
+
+    <div id="map"></div>
+    <div class="map-overlay top">
+        <button class="mapButton" style="font-size: 20px;" onclick="run()">
+            Track Bus Routes
+        </button>
+    </div>
+
+<script>
+
+var bus_markers = [];
+
+mapboxgl.accessToken = 'pk.eyJ1Ijoia2FwYXlhIiwiYSI6ImNrZmJmYTJicTBteWEydXFqOG9uYWJjMmsifQ.PvxeZ03QnJPnK9QfQHOeDA';
+const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [-71.101, 42.358],
+    zoom: 12
+});
+
+async function getBusLocations() {
+    const url = 'https://api-v3.mbta.com/vehicles?filter[route]=1&include=trip';
+    const response = await fetch(url);
+    const json = await response.json();
+    return json.data;
+}
+
+async function addMapLocations(locations) {
+    if (locations) {
+        bus_markers.forEach(element => {
+        element.remove();
+        });
+        bus_markers = [];
+        locations.forEach(element => {
+                const marker = new mapboxgl.Marker()
+                    .setLngLat([element.attributes.longitude, element.attributes.latitude])
+                    .addTo(map);
+        bus_markers.push(marker);        
+            
+        });
+    }
+}
+
+async function run(){
+    console.log(new Date());
+    const locations = await getBusLocations();
+    addMapLocations(locations);
+    setTimeout(run, 4000);
+}
+//run();
+
+</script>
+</body>
