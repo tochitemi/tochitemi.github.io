@@ -89,12 +89,10 @@ async function addMapLocations(locations) {
 }
 
 async function run(){
-    console.log(new Date());
     const locations = await getBusLocations();
     addMapLocations(locations);
     setTimeout(run, 4000);
 }
-//run();
 
 </script>
 </body>
